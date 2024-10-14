@@ -7,6 +7,8 @@ public class Arquivo
     public string TipoArquivo { get; set; }
     public string CaminhoServidor { get; set; }
 
+    //public int CurriculoId { get; set; }
+
     [JsonIgnore]
     public ICollection<CurriculoArquivo> CurriculoArquivos { get; set; }
 }

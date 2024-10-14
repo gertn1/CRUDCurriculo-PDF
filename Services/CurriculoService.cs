@@ -48,17 +48,32 @@ namespace WebCurriculum.Services
             if (existingCurriculo == null)
                 throw new Exception("Currículo não encontrado.");
 
+            // Atualiza os dados do currículo
             existingCurriculo.Nome = curriculo.Nome;
             existingCurriculo.Email = curriculo.Email;
             existingCurriculo.Telefone = curriculo.Telefone;
             existingCurriculo.Nivel = curriculo.Nivel;
 
+            // Verifica se um novo arquivo foi enviado
             if (newFile != null && _arquivoService.IsValidExtension(newFile.FileName))
             {
-                var arquivo = await _arquivoService.SaveFileAsync(newFile);
+                // Remove o arquivo antigo, se houver
+                if (existingCurriculo.CurriculoArquivos.Any())
+                {
+                    foreach (var arquivo in existingCurriculo.CurriculoArquivos)
+                    {
+                        await _arquivoService.DeleteFileAsync(arquivo.ArquivoId);
+                    }
+
+                    // Limpa a lista de arquivos antigos
+                    existingCurriculo.CurriculoArquivos.Clear();
+                }
+
+                // Adiciona o novo arquivo
+                var novoArquivo = await _arquivoService.SaveFileAsync(newFile);
                 existingCurriculo.CurriculoArquivos.Add(new CurriculoArquivo
                 {
-                    ArquivoId = arquivo.Id
+                    ArquivoId = novoArquivo.Id
                 });
             }
             else if (newFile != null)

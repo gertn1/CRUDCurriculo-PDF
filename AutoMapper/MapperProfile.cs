@@ -16,6 +16,7 @@ namespace WebCurriculum.Mapping
             CreateMap<CurriculoCreateDto, Curriculo>();
             CreateMap<Arquivo, ArquivoDto>();
             CreateMap<CurriculoArquivo, CurriculoArquivoDto>();
+            CreateMap<CurriculoEditDto, Curriculo>(); 
         }
     }
 }

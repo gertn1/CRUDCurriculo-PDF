@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using WebCurriculum.DTOs;
 using WebCurriculum.Enums;
@@ -45,13 +46,47 @@ namespace WebCurriculum.Controllers
                 return BadRequest(ModelState);
 
             var curriculo = _mapper.Map<Curriculo>(curriculoDto);
-
             await _curriculoService.AddAsync(curriculo, curriculoDto.File);
 
             var createdCurriculoDto = _mapper.Map<CurriculoDto>(curriculo);
             return CreatedAtAction(nameof(GetById), new { id = curriculo.Id }, createdCurriculoDto);
         }
 
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromForm] CurriculoEditDto curriculoDto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var curriculo = _mapper.Map<Curriculo>(curriculoDto);
+            curriculo.Id = id;
+
+            try
+            {
+                await _curriculoService.UpdateAsync(curriculo, curriculoDto.File);
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                await _curriculoService.DeleteAsync(id);
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+
+            return NoContent();
+        }
 
         [HttpGet("search")]
         public async Task<IActionResult> Search([FromQuery] string nome, [FromQuery] Nivel? nivel)
