@@ -23,7 +23,8 @@ namespace WebCurriculum.Controllers
         public async Task<IActionResult> GetAll()
         {
             var curriculos = await _curriculoService.GetAllAsync();
-            return Ok(curriculos);
+            var curriculosDto = _mapper.Map<IEnumerable<CurriculoDto>>(curriculos);
+            return Ok(curriculosDto);
         }
 
         [HttpGet("{id}")]
@@ -33,39 +34,24 @@ namespace WebCurriculum.Controllers
             if (curriculo == null)
                 return NotFound();
 
-            return Ok(curriculo);
+            var curriculoDto = _mapper.Map<CurriculoDto>(curriculo);
+            return Ok(curriculoDto);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromForm] CurriculoCreateDto curriculoDto, [FromForm] ICollection<IFormFile> files)
+        public async Task<IActionResult> Create([FromForm] CurriculoCreateDto curriculoDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             var curriculo = _mapper.Map<Curriculo>(curriculoDto);
 
-            await _curriculoService.AddAsync(curriculo, files);
+            await _curriculoService.AddAsync(curriculo, curriculoDto.File);
 
             var createdCurriculoDto = _mapper.Map<CurriculoDto>(curriculo);
             return CreatedAtAction(nameof(GetById), new { id = curriculo.Id }, createdCurriculoDto);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromForm] Curriculo curriculo, [FromForm] ICollection<IFormFile> newFiles)
-        {
-            if (id != curriculo.Id)
-                return BadRequest();
-
-            await _curriculoService.UpdateAsync(curriculo, newFiles);
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            await _curriculoService.DeleteAsync(id);
-            return NoContent();
-        }
 
         [HttpGet("search")]
         public async Task<IActionResult> Search([FromQuery] string nome, [FromQuery] Nivel? nivel)

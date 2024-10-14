@@ -24,65 +24,51 @@ namespace WebCurriculum.Services
             return await _curriculoRepository.GetByIdAsync(id);
         }
 
-        public async Task AddAsync(Curriculo curriculo, ICollection<IFormFile> files)
+        public async Task AddAsync(Curriculo curriculo, IFormFile file)
         {
-            // Validações adicionais podem ser feitas aqui
-
-            curriculo.CurriculoArquivos = new List<CurriculoArquivo>();
-
-            foreach (var file in files)
+            if (file != null && _arquivoService.IsValidExtension(file.FileName))
             {
-                if (_arquivoService.IsValidExtension(file.FileName))
+                var arquivo = await _arquivoService.SaveFileAsync(file);
+                curriculo.CurriculoArquivos = new List<CurriculoArquivo>
                 {
-                    var arquivo = await _arquivoService.SaveFileAsync(file);
-                    curriculo.CurriculoArquivos.Add(new CurriculoArquivo
-                    {
-                        ArquivoId = arquivo.Id
-                    });
-                }
-                else
-                {
-                    throw new Exception($"Tipo de arquivo não permitido: {file.FileName}");
-                }
+                    new CurriculoArquivo { ArquivoId = arquivo.Id }
+                };
+            }
+            else if (file != null)
+            {
+                throw new Exception($"Tipo de arquivo não permitido: {file.FileName}");
             }
 
             await _curriculoRepository.AddAsync(curriculo);
         }
 
-        public async Task UpdateAsync(Curriculo curriculo, ICollection<IFormFile> newFiles)
+        public async Task UpdateAsync(Curriculo curriculo, IFormFile newFile)
         {
             var existingCurriculo = await _curriculoRepository.GetByIdAsync(curriculo.Id);
             if (existingCurriculo == null)
                 throw new Exception("Currículo não encontrado.");
 
-            // Atualiza os campos do currículo
             existingCurriculo.Nome = curriculo.Nome;
             existingCurriculo.Email = curriculo.Email;
             existingCurriculo.Telefone = curriculo.Telefone;
             existingCurriculo.Nivel = curriculo.Nivel;
 
-            // Adiciona novos arquivos
-            if (newFiles != null && newFiles.Count > 0)
+            if (newFile != null && _arquivoService.IsValidExtension(newFile.FileName))
             {
-                foreach (var file in newFiles)
+                var arquivo = await _arquivoService.SaveFileAsync(newFile);
+                existingCurriculo.CurriculoArquivos.Add(new CurriculoArquivo
                 {
-                    if (_arquivoService.IsValidExtension(file.FileName))
-                    {
-                        var arquivo = await _arquivoService.SaveFileAsync(file);
-                        existingCurriculo.CurriculoArquivos.Add(new CurriculoArquivo
-                        {
-                            ArquivoId = arquivo.Id
-                        });
-                    }
-                    else
-                    {
-                        throw new Exception($"Tipo de arquivo não permitido: {file.FileName}");
-                    }
-                }
+                    ArquivoId = arquivo.Id
+                });
+            }
+            else if (newFile != null)
+            {
+                throw new Exception($"Tipo de arquivo não permitido: {newFile.FileName}");
             }
 
             await _curriculoRepository.UpdateAsync(existingCurriculo);
         }
+
 
         public async Task DeleteAsync(int id)
         {

@@ -4,8 +4,8 @@
     {
         Task<IEnumerable<Curriculo>> GetAllAsync();
         Task<Curriculo> GetByIdAsync(int id);
-        Task AddAsync(Curriculo curriculo, ICollection<IFormFile> files);
-        Task UpdateAsync(Curriculo curriculo, ICollection<IFormFile> newFiles);
+        Task AddAsync(Curriculo curriculo, IFormFile file);
+        Task UpdateAsync(Curriculo curriculo, IFormFile newFile);
         Task DeleteAsync(int id);
     }
 

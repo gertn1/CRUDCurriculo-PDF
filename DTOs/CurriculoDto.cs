@@ -9,6 +9,7 @@ namespace WebCurriculum.DTOs
         public string Email { get; set; }
         public string Telefone { get; set; }
         public Nivel Nivel { get; set; }
+        public string CaminhoImagem { get; set; }
         public ICollection<ArquivoDto> Arquivos { get; set; }
     }
 

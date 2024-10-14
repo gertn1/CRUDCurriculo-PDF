@@ -8,7 +8,10 @@ namespace WebCurriculum.Mapping
         public MappingProfile()
         {
             CreateMap<Curriculo, CurriculoDto>()
-           .ForMember(dest => dest.Arquivos, opt => opt.MapFrom(src => src.CurriculoArquivos.Select(ca => ca.Arquivo)));
+                .ForMember(dest => dest.CaminhoImagem, opt => opt.MapFrom(src =>
+                    src.CurriculoArquivos.FirstOrDefault() != null
+                        ? src.CurriculoArquivos.FirstOrDefault().Arquivo.CaminhoServidor
+                        : null));
 
             CreateMap<CurriculoCreateDto, Curriculo>();
             CreateMap<Arquivo, ArquivoDto>();
